@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 ./config.sh
-
 serviceName=$1
 version=$2
-
+dockerfile=$3
 ./clear-service.sh ${serviceName}
-
 echo "start build docker image..."
 docker build -t ${serviceName}:${version} .
 
