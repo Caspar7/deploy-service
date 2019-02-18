@@ -14,6 +14,7 @@ if [ "uat" = "${env}" ];then
 fi
 
 if [ "prod" = "${env}" ];then
+    sshpass -p $uat_pwd ssh $prod_user@${uat_prod_hosthost} "mkdir -p ${dest_dir}"
     /opt/deploy-service/expect_scp.sh $prod_host $prod_port $prod_user $prod_pwd $src_dir $dest_dir
 fi
  
