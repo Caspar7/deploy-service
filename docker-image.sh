@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. config.sh
+. /opt/deploy-service/config.sh
 op=$1
 serviceName=$2
 BUILD_NUMBER=$3

@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
-BUILD_NUMBER=$1
-env=$2
-serviceName="employee-service"
-images_path="/home/docker/images/"
-src_dir=${images_path}${serviceName}_${BUILD_NUMBER}.tar
-dest_dir=${images_path}
-
-host=35.220.222.101
-port=22
-username=root
-password=root
-
+. /opt/deploy-service/config.sh
+serviceName=$1
+BUILD_NUMBER=$2
+env=$3
 #get rand port
 randPort(){
     min=$1
@@ -19,44 +11,31 @@ randPort(){
     echo $(($num%$max+$min))
 }
 
-echo "stop and delete exist docker images and container..."
-running=`docker ps | grep ${serviceName} | awk '{print $1}'`
-if [ ! -z "$running" ]; then
-    docker stop $running
-fi
-
-container=`docker ps -a | grep ${serviceName} | awk '{print $1}'`
-if [ ! -z "$container" ]; then
-    docker rm $container -f
-fi
-
-imagesid=`docker images|grep -i ${serviceName}|awk '{print $3}'`
-if [ ! -z "$imagesid" ]; then
-    docker rmi $imagesid -f
-fi
-
-
 echo "deploy docker container..."
 deployPort=$(randPort 10000 60000)
 
-loadcmd="docker load -i ${images_path}${serviceName}_${BUILD_NUMBER}.tar"
-runcmd="docker run --env env=${env} --env deployIp=${deployIp} --env deployPort=${deployPort} -it -d -p ${deployPort}:${deployPort} --name ${serviceName} ${serviceName}:${BUILD_NUMBER}"
+clearCmd="/opt/deploy-service/clear-service.sh ${serviceName}
+loadCmd="/opt/deploy-service/docker-image.sh load ${serviceName} ${BUILD_NUMBER}"
+runCmd="docker run --env env=${env} --env deployIp=${deployIp} --env deployPort=${deployPort} -it -d -p ${deployPort}:${deployPort} --name ${serviceName} ${serviceName}:${BUILD_NUMBER}"
 if [ "local" = "${env}" ];then
     env="uat"
-    ${loadcmd}
-    ${runcmd}
+    ${clearCmd}
+    ${loadCmd}
+    ${runCmd}
     exit 0
 fi
 
-
+src_dir=${images_path}${serviceName}/${serviceName}_${BUILD_NUMBER}.tar
+dest_dir=${images_path}
 if [ "uat" = "${env}" ];then
     echo "scp docker image to target server"
     # scp docker file to remote server
-    ./expect_scp.sh $host $port $username $password $src_dir $dest_dir
+    /opt/deploy-service/expect_scp.sh $host $uat_port $uat_user $uat_pwd $src_dir $dest_dir
     echo "run docker to target env server"
     #yum install sshpass if not install sshpass at build server
-    sshpass -p $password ssh $username@${host} ${loadcmd}
-    sshpass -p $password ssh $username@${host} ${runcmd}
+    sshpass -p $uat_pwd ssh $uat_user@${host} ${clearCmd}
+    sshpass -p $uat_pwd ssh $uat_user@${host} ${loadcmd}
+    sshpass -p $uat_pwd ssh $uat_user@${host} ${runcmd}
     exit 0
 fi
 
