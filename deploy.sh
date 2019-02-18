@@ -25,16 +25,11 @@ if [ "local" = "${env}" ];then
     exit 0
 fi
 
-src_dir=${images_path}${serviceName}/${serviceName}_${BUILD_NUMBER}.tar
-dest_dir=${images_path}${serviceName
-if [ "uat" = "${env}" ];then
-    echo "scp docker image to remote target server..."
-    /opt/deploy-service/expect_scp.sh $uat_host $uat_port $uat_user $uat_pwd $src_dir $dest_dir
-    echo "run docker to target env server..."
-
-    #yum install sshpass if not install sshpass at build server
-    sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${clearCmd}
-    sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${loadcmd}
-    sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${runcmd}
-    exit 0
-fi
+# if [ "uat" = "${env}" ];then
+#     echo "run docker to target env server..."
+#     #yum install sshpass if not install sshpass at build server
+#     sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${clearCmd}
+#     sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${loadcmd}
+#     sshpass -p $uat_pwd ssh $uat_user@${uat_host} ${runcmd}
+#     exit 0
+# fi
