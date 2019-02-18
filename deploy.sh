@@ -3,6 +3,7 @@
 serviceName=$1
 BUILD_NUMBER=$2
 env=$3
+deployIp=$4
 #get rand port
 randPort(){
     min=$1
