@@ -13,15 +13,14 @@ randPort(){
 
 echo "deploy docker container..."
 deployPort=$(randPort 10000 60000)
-
 clearCmd="/opt/deploy-service/clear-service.sh ${serviceName}
 loadCmd="/opt/deploy-service/docker-image.sh load ${serviceName} ${BUILD_NUMBER}"
 runCmd="docker run --env env=${env} --env deployIp=${deployIp} --env deployPort=${deployPort} -it -d -p ${deployPort}:${deployPort} --name ${serviceName} ${serviceName}:${BUILD_NUMBER}"
 if [ "local" = "${env}" ];then
-    env="uat"
+    echo "deploy to local"
     ${clearCmd}
     ${loadCmd}
-    ${runCmd}
+    docker run --env env=${env} --env deployIp=${deployIp} --env deployPort=${deployPort} -it -d -p ${deployPort}:${deployPort} --name ${serviceName} ${serviceName}:${BUILD_NUMBER}
     exit 0
 fi
 
